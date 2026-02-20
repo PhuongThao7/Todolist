@@ -59,3 +59,46 @@ app.post("/task", async (req, res) => {
   await task.save();
   res.json(task);
 });
+
+
+app.get("/tasks", async (req, res) => {
+  const tasks = await Task.find().populate("user");
+  res.json(tasks);
+});
+
+
+
+app.get("/tasks/user/:username", async (req, res) => {
+  const user = await User.findOne({ username: req.params.username });
+  const tasks = await Task.find({ user: user._id });
+  res.json(tasks);
+});
+
+
+app.get("/tasks/today", async (req, res) => {
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  const tasks = await Task.find({
+    createdAt: { $gte: today }
+  });
+
+  res.json(tasks);
+});
+
+
+
+app.get("/tasks/notdone", async (req, res) => {
+  const tasks = await Task.find({ done: false });
+  res.json(tasks);
+});
+
+
+
+app.get("/tasks/nguyen", async (req, res) => {
+  const users = await User.find({ username: /^Nguyễn/i });
+  const userIds = users.map(u => u._id);
+
+  const tasks = await Task.find({ user: { $in: userIds } });
+  res.json(tasks);
+});
