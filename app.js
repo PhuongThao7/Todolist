@@ -42,3 +42,20 @@ app.post("/register", async (req, res) => {
     res.status(400).json({ message: "Username already exists" });
   }
 });
+
+const Task = require("./models/Task");
+
+app.post("/task", async (req, res) => {
+  const { title, username } = req.body;
+
+  const user = await User.findOne({ username });
+
+  const task = new Task({
+    title,
+    user: user._id,
+    assignedUsers: [user._id]
+  });
+
+  await task.save();
+  res.json(task);
+});
