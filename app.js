@@ -178,7 +178,7 @@ app.post("/tasks/delete/:id", requireLogin, async (req, res) => {
 
 /* ================= API ================= */
 
-/* ✅ API: tất cả task (admin: tất cả, user: task của mình) */
+/* API: tất cả task (admin: tất cả, user: task của mình) */
 app.get("/api/tasks", requireLogin, async (req, res) => {
   let tasks;
 
@@ -192,8 +192,22 @@ app.get("/api/tasks", requireLogin, async (req, res) => {
 
   res.json(tasks);
 });
+/* API: LẤY TASK THEO USERNAME */
+app.get("/api/tasks/user/:username", requireLogin, async (req, res) => {
+  const user = await User.findOne({ username: req.params.username });
 
-/* ✅ API: TASK HÔM NAY */
+  if (!user) {
+    return res.status(404).json({ message: "Không tìm thấy user" });
+  }
+
+  const tasks = await Task.find({
+    assignedUsers: user._id
+  }).populate("assignedUsers");
+
+  res.json(tasks);
+});
+
+/* API: TASK HÔM NAY */
 app.get("/api/tasks/today", requireLogin, async (req, res) => {
   const start = new Date();
   start.setHours(0, 0, 0, 0);
@@ -211,7 +225,20 @@ app.get("/api/tasks/today", requireLogin, async (req, res) => {
   res.json(tasks);
 });
 
-/* ✅ API: TASK HỌ NGUYỄN */
+/* API: TASK CHƯA HOÀN THÀNH */
+app.get("/api/tasks/undone", requireLogin, async (req, res) => {
+  let query = { isDone: false };
+
+  // User thường chỉ thấy task của mình
+  if (req.session.user.role !== "admin") {
+    query.assignedUsers = req.session.user._id;
+  }
+
+  const tasks = await Task.find(query).populate("assignedUsers");
+  res.json(tasks);
+});
+
+/* API: TASK HỌ NGUYỄN */
 app.get("/api/tasks/nguyen", requireLogin, async (req, res) => {
   const users = await User.find({
     fullname: { $regex: /^Nguyễn/i }
