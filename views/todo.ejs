@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>TodoList</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="topbar">
+  <h2>📝 TodoList </h2>
+  <div>
+    Xin chào, <b><%= user.fullname %></b>
+    <span style="opacity:0.8">(<%= user.role %>)</span>
+    <a href="/logout" class="logout">Đăng xuất</a>
+  </div>
+</header>
+
+<!-- ===== MAIN ===== -->
+<div class="container">
+
+  <!-- ===== LEFT ===== -->
+  <aside class="left">
+
+    <!-- ===== CHỈ ADMIN ĐƯỢC TẠO TASK ===== -->
+    <% if (user.role === "admin") { %>
+    <div class="card">
+      <h3>➕ Tạo công việc</h3>
+
+      <form method="POST" action="/tasks">
+        <label>Tên công việc</label>
+        <input name="title" placeholder="Ví dụ: Làm báo cáo, học bài..." required>
+
+        <label>Phân công cho</label>
+        <select name="users" multiple>
+          <% users.forEach(u => { %>
+            <option value="<%= u._id %>">
+              <%= u.fullname %> – <%= u.username %>
+            </option>
+          <% }) %>
+        </select>
+
+        <small>Giữ <b>Ctrl</b> để chọn nhiều người</small>
+
+        <button type="submit" class="btn">Thêm công việc</button>
+      </form>
+    </div>
+    <% } %>
+
+    <!-- ===== PROGRESS ===== -->
+    <div class="card">
+      <h3>📊 Tiến độ</h3>
+
+      <div class="progress">
+        <div class="progress-bar" data-percent="<%= percent %>"></div>
+      </div>
+
+      <div class="progress-text">
+        <%= percent %>% hoàn thành
+      </div>
+
+      <small>Tiến độ dựa trên các task hiển thị</small>
+    </div>
+
+    <!-- ===== API ===== -->
+    <div class="card">
+      <h3>🔗 API kiểm thử</h3>
+      <a href="/api/tasks">📄 Tất cả Tasks (JSON)</a><br>
+      <a href="/api/tasks/nguyen">👨‍👩‍👧 Tasks họ Nguyễn</a><br>
+      <a href="/api/tasks/today">📅 Tasks hôm nay</a>
+    </div>
+
+  </aside>
+
+  <!-- ===== RIGHT ===== -->
+  <main class="right">
+    <div class="card">
+      <h3>📌 Danh sách công việc</h3>
+
+      <% if (tasks.length === 0) { %>
+        <p style="color:#6b7280">Chưa có công việc nào.</p>
+      <% } %>
+
+      <% tasks.forEach(t => { %>
+        <div class="task">
+
+          <div style="display:flex; justify-content:space-between; align-items:center">
+            <h4><%= t.title %></h4>
+            <span style="font-size:13px; color:#6b7280">
+              <%= t.isDone ? "✔ Hoàn thành" : "⏳ Đang làm" %>
+            </span>
+          </div>
+
+          <p>
+            <b>Người thực hiện:</b>
+            <% t.assignedUsers.forEach(u => { %>
+              <span class="badge"><%= u.username %></span>
+            <% }) %>
+          </p>
+
+          <div style="margin-top:8px">
+
+            <!-- AI CŨNG ĐƯỢC HOÀN THÀNH -->
+            <% if (!t.isDone) { %>
+              <form method="POST" action="/tasks/complete/<%= t._id %>" style="display:inline">
+                <button class="done">Hoàn thành</button>
+              </form>
+            <% } %>
+
+            <!-- CHỈ ADMIN ĐƯỢC XÓA -->
+            <% if (user.role === "admin") { %>
+              <form method="POST" action="/tasks/delete/<%= t._id %>" style="display:inline">
+                <button class="delete">Xóa</button>
+              </form>
+            <% } %>
+
+          </div>
+
+        </div>
+      <% }) %>
+
+    </div>
+  </main>
+
+</div>
+
+<!-- ===== JS FOR PROGRESS ===== -->
+<script>
+  document.querySelectorAll(".progress-bar").forEach(bar => {
+    const percent = bar.dataset.percent || 0;
+    bar.style.width = percent + "%";
+  });
+</script>
+
+</body>
+</html>
