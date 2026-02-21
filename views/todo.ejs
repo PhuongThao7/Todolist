@@ -9,10 +9,10 @@
 
 <!-- ===== HEADER ===== -->
 <header class="topbar">
-  <h2>📝 TodoList </h2>
+  <h2>TodoList </h2>
   <div>
     Xin chào, <b><%= user.fullname %></b>
-    <span style="opacity:0.8">(<%= user.role %>)</span>
+  
     <a href="/logout" class="logout">Đăng xuất</a>
   </div>
 </header>
@@ -26,13 +26,13 @@
     <!-- ===== CHỈ ADMIN ĐƯỢC TẠO TASK ===== -->
     <% if (user.role === "admin") { %>
     <div class="card">
-      <h3>➕ Tạo công việc</h3>
+      <h3>Tạo công việc</h3>
 
       <form method="POST" action="/tasks">
         <label>Tên công việc</label>
-        <input name="title" placeholder="Ví dụ: Làm báo cáo, học bài..." required>
+        <input name="title" placeholder="Ví dụ: Làm báo cáo, mua đồ..." required>
 
-        <label>Phân công cho</label>
+        <label>Giao việc cho</label>
         <select name="users" multiple>
           <% users.forEach(u => { %>
             <option value="<%= u._id %>">
@@ -43,14 +43,14 @@
 
         <small>Giữ <b>Ctrl</b> để chọn nhiều người</small>
 
-        <button type="submit" class="btn">Thêm công việc</button>
+        <button type="submit" class="btn">Thêm</button>
       </form>
     </div>
     <% } %>
 
     <!-- ===== PROGRESS ===== -->
     <div class="card">
-      <h3>📊 Tiến độ</h3>
+      <h3>Tiến độ</h3>
 
       <div class="progress">
         <div class="progress-bar" data-percent="<%= percent %>"></div>
@@ -59,16 +59,16 @@
       <div class="progress-text">
         <%= percent %>% hoàn thành
       </div>
-
-      <small>Tiến độ dựa trên các task hiển thị</small>
     </div>
 
     <!-- ===== API ===== -->
     <div class="card">
-      <h3>🔗 API kiểm thử</h3>
-      <a href="/api/tasks">📄 Tất cả Tasks (JSON)</a><br>
-      <a href="/api/tasks/nguyen">👨‍👩‍👧 Tasks họ Nguyễn</a><br>
-      <a href="/api/tasks/today">📅 Tasks hôm nay</a>
+      <h3> ***API***</h3>
+      <a href="/api/tasks"> Tất cả Tasks </a>
+      <a href="/api/tasks/user/<%= user.username %>"> Tasks theo tên User</a>
+      <a href="/api/tasks/today"> Tasks hôm nay</a>
+      <a href="/api/tasks/undone"> Tasks chưa hoàn thành </a>
+      <a href="/api/tasks/nguyen"> Tasks họ Nguyễn</a>
     </div>
 
   </aside>
